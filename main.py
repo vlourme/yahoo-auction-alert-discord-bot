@@ -25,10 +25,16 @@ async def check_alerts() -> None:
         for alert in alerts:
             info(f"Searching for {alert['name']}...")
             if os.getenv("ENABLE_YAHOO_AUCTION", "true") == "true":
-                await check_yahoo_auctions(bot, translator, alert)
+                try:
+                    await check_yahoo_auctions(bot, translator, alert)
+                except Exception as e:
+                    info(f"Error: {e}")
 
             if os.getenv("ENABLE_MERCARI", "true") == "true":
-                await check_mercari(bot, alert)
+                try:
+                    await check_mercari(bot, alert)
+                except Exception as e:
+                    info(f"Error: {e}")
 
         info(
             f"Done checking alerts. Sleeping for {os.getenv('CHECK_INTERVAL', 60)}s..."
