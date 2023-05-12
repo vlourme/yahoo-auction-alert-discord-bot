@@ -43,5 +43,7 @@ async def check_yahoo_auctions(
             price = dom.getElementsByTagName("span")[0].getAttribute("data-eur")
             embed.add_field("Bid price", price)
 
+        embed.set_footer(f"Source: Yahoo Auction — #{item['AuctionID']}")
+
         await bot.rest.create_message(alert["channel_id"], embed=embed)
         bot.d.synced.insert({"name": item["AuctionID"]})

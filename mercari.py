@@ -32,9 +32,14 @@ async def check_mercari(bot: BotApp, alert: dict) -> None:
             embed.set_image(item["PreviewImageUrl"])
 
         if item["PriceTextControl"]:
-            dom = parseString(item["PriceTextControl"])
-            price = dom.getElementsByTagName("span")[0].getAttribute("data-eur")
-            embed.add_field("Price", price)
+            try:
+                dom = parseString(item["PriceTextControl"])
+                price = dom.getElementsByTagName("span")[0].getAttribute("data-eur")
+                embed.add_field("Price", price)
+            except:
+                pass
+
+        embed.set_footer(f"Source: Mercari — #{item['ItemCode']}")
 
         await bot.rest.create_message(alert["channel_id"], embed=embed)
         bot.d.synced.insert({"name": item["ItemCode"]})
