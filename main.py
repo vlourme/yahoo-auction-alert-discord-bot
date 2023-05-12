@@ -4,9 +4,10 @@ import lightbulb
 import hikari
 import dataset
 import asyncio
-import requests, json
-from xml.dom.minidom import parseString
 from easygoogletranslate import EasyGoogleTranslate
+from logging import info
+from yahoo import check_yahoo_auctions
+from mercari import check_mercari
 
 dotenv.load_dotenv()
 
@@ -22,48 +23,14 @@ async def check_alerts() -> None:
         alerts = bot.d.table.all()
 
         for alert in alerts:
-            print(f"Searching for {alert['name']}...")
-            res = requests.post(
-                f"https://zenmarket.jp/fr/yahoo.aspx/getProducts?q={alert['name']}&sort=new&order=desc",
-                json={"page": 1},
-            )
+            info(f"Searching for {alert['name']}...")
+            if os.getenv("ENABLE_YAHOO_AUCTION", "true") == "true":
+                await check_yahoo_auctions(bot, translator, alert)
 
-            content = json.loads(res.json()["d"])
+            if os.getenv("ENABLE_MERCARI", "true") == "true":
+                await check_mercari(bot, alert)
 
-            for item in content["Items"]:
-                if bot.d.synced.find_one(name=item["AuctionID"]):
-                    print("already synced — up to date")
-                    continue
-
-                embed = hikari.Embed()
-                embed.color = hikari.Color(0x09B1BA)
-                embed.title = (
-                    translator.translate(item["Title"]) or item["Title"] or "Unknown"
-                )
-
-                if item["AuctionID"]:
-                    embed.url = (
-                        "https://zenmarket.jp/fr/auction.aspx?itemCode="
-                        + item["AuctionID"]
-                    )
-
-                if item["Thumbnail"]:
-                    embed.set_image(item["Thumbnail"])
-
-                if item["PriceBidOrBuyTextControl"]:
-                    dom = parseString(item["PriceBidOrBuyTextControl"])
-                    price = dom.getElementsByTagName("span")[0].getAttribute("data-eur")
-                    embed.add_field("Instant price", price)
-
-                if item["PriceTextControl"]:
-                    dom = parseString(item["PriceTextControl"])
-                    price = dom.getElementsByTagName("span")[0].getAttribute("data-eur")
-                    embed.add_field("Bid price", price)
-
-                await bot.rest.create_message(alert["channel_id"], embed=embed)
-                bot.d.synced.insert({"name": item["AuctionID"]})
-
-        print(
+        info(
             f"Done checking alerts. Sleeping for {os.getenv('CHECK_INTERVAL', 60)}s..."
         )
         await asyncio.sleep(int(os.getenv("CHECK_INTERVAL", 60)))
@@ -71,7 +38,7 @@ async def check_alerts() -> None:
 
 @bot.listen()
 async def on_ready(event: hikari.StartingEvent) -> None:
-    print("Starting event loop...")
+    info("Starting event loop...")
     asyncio.create_task(check_alerts())
 
 
@@ -91,7 +58,6 @@ async def register(ctx: lightbulb.SlashContext, name: str) -> None:
             "user_id": ctx.author.id,
             "channel_id": ctx.channel_id,
             "name": name,
-            "last_id_seen": None,
         }
     )
     await ctx.respond(f"Registered alert for **{name}**!")

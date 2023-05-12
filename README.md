@@ -1,6 +1,6 @@
-# Yahoo Auction! Alert Discord Bot
+# Yahoo Auction and Mercari Discord Bot
 
-This project is a Discord bot designed to find newly posted articles on Yahoo Auction! and alert the user on a Discord server. The bot employs an unofficial Google Translator API to translate the article names from Japanese, which can occasionally result in instability.
+This project is a Discord bot designed to find newly posted articles on Yahoo Auction and Mercari and alert the user on a Discord server. The bot employs an unofficial Google Translator API to translate the article names from Japanese, which can occasionally result in instability.
 
 ## Installation
 
@@ -32,6 +32,9 @@ Create a `.env` file in the root directory of the project. This file will store 
 
 ```bash
 BOT_TOKEN=your-discord-token
+CHECK_INTERVAL=60
+ENABLE_YAHOO_AUCTION=true
+ENABLE_MERCARI=true
 ```
 
 Replace `your-discord-token` with the actual Discord bot token.
@@ -44,7 +47,7 @@ You can start the bot by running the `main.py` script.
 python main.py
 ```
 
-The bot should now be running and scanning Yahoo Auction for new articles.
+The bot should now be running and scanning Yahoo Auction and Mercari for new articles.
 
 ## Important Notes
 
@@ -60,7 +63,7 @@ We welcome contributions to this project. Please feel free to open an issue or s
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
