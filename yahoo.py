@@ -12,6 +12,9 @@ async def check_yahoo_auctions(
     res = requests.post(
         f"https://zenmarket.jp/fr/yahoo.aspx/getProducts?q={alert['name']}&sort=new&order=desc",
         json={"page": 1},
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+        },
     )
 
     content = json.loads(res.json()["d"])
